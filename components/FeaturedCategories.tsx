@@ -14,7 +14,7 @@ const categories = [
 
 export default function FeaturedCategories() {
     return (
-        <section className="py-24 bg-white relative overflow-hidden">
+        <section className="py-24 bg-zinc-50/50 relative overflow-hidden">
             <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-orange-100/30 rounded-full blur-[120px] -z-10" />
             <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-orange-50/50 rounded-full blur-[120px] -z-10" />
 
