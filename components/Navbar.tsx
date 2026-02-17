@@ -35,7 +35,6 @@ export default function Navbar() {
     return (
         <nav
             className={`sticky top-0 z-50 transition-all duration-500 ${
-                // Ekhane black bg shoriye glass effect default kora hoyeche
                 scrolled
                 ? 'glass border-b border-orange-200/50 py-3 shadow-md'
                 : 'bg-white/80 backdrop-blur-md border-b border-orange-100/30 py-4'
