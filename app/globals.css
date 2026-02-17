@@ -1,13 +1,13 @@
 @import "tailwindcss";
 
 :root {
-  --background: #fff7ed; /* Orange 50 (Warm White) */
-  --foreground: #431407; /* Orange 950 (Warm Brown) */
-  --primary: #ea580c; /* Orange 600 (Deep Orange) */
-  --secondary: #9a3412; /* Orange 800 (Burnt Orange) */
-  --accent: #ca8a04; /* Yellow 600 (Golden Yellow) */
-  --accent-light: #fef08a; /* Yellow 200 (Soft Yellow) */
-  --muted: #ffedd5; /* Orange 100 */
+  --background: #fff7ed; 
+  --foreground: #431407; 
+  --primary: #ea580c; 
+  --secondary: #9a3412; 
+  --accent: #ca8a04; 
+  --accent-light: #fef08a; 
+  --muted: #ffedd5; 
   
   --glass-bg: rgba(255, 247, 237, 0.8);
   --glass-border: rgba(234, 88, 12, 0.2);
