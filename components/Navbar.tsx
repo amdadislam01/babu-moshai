@@ -47,7 +47,7 @@ export default function Navbar() {
                     <Link href="/" className="flex items-center space-x-3 group">
                         <div className="relative w-11 h-11 overflow-hidden rounded-xl bg-orange-100 flex items-center justify-center group-hover:scale-105 transition-all duration-300 border border-orange-200/50">
                             <Image
-                                src="https://i.ibb.co.com/XdDxtWw/Gemini-Generated-Image-qrukn3qrukn3qruk.png"
+                                src="https://i.ibb.co.com/GfRhN82x/babu-moshai-logo.png"
                                 alt="Babu Moshai"
                                 fill
                                 className="object-cover"

@@ -15,7 +15,7 @@ export default function Footer() {
                         <Link href="/" className="flex items-center space-x-3 group w-fit">
                             <div className="relative w-12 h-12 overflow-hidden rounded-2xl border-2 border-orange-200 group-hover:border-primary transition-all duration-500 shadow-sm group-hover:shadow-orange-200 group-hover:shadow-lg">
                                 <Image
-                                    src="https://i.ibb.co.com/XdDxtWw/Gemini-Generated-Image-qrukn3qrukn3qruk.png"
+                                    src="https://i.ibb.co.com/GfRhN82x/babu-moshai-logo.png"
                                     alt="Babu Moshai"
                                     fill
                                     className="object-cover transition-transform duration-500 group-hover:scale-110"

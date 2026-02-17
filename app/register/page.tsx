@@ -3,17 +3,19 @@
 import { useState, useEffect, Suspense } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useRouter, useSearchParams } from 'next/navigation';
+import Image from 'next/image';
 import Link from 'next/link';
 import { register } from '@/lib/features/auth/authSlice';
 import { RootState, AppDispatch } from '@/lib/store';
 import { motion } from 'framer-motion';
-import { User, Mail, Lock, UserPlus } from 'lucide-react';
+import { User, Mail, Lock, UserPlus, ArrowRight, Eye, EyeOff } from 'lucide-react';
 
 function RegisterForm() {
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
+    const [showPassword, setShowPassword] = useState(false);
     const [message, setMessage] = useState<string | null>(null);
 
     const dispatch = useDispatch<AppDispatch>();
@@ -41,131 +43,136 @@ function RegisterForm() {
 
     return (
         <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.5 }}
-            className="max-w-md w-full space-y-8 bg-white/95 backdrop-blur-lg p-10 rounded-2xl shadow-2xl relative z-10"
+            initial={{ opacity: 0, x: 30 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.8 }}
+            className="w-full max-w-lg p-8 md:p-12"
         >
-            <div className="text-center">
-                <motion.div
-                    initial={{ y: -20 }}
-                    animate={{ y: 0 }}
-                    className="inline-block p-3 bg-gradient-to-br from-accent to-primary rounded-full mb-4"
-                >
-                    <UserPlus className="h-8 w-8 text-white" />
-                </motion.div>
-                <h2 className="text-3xl font-extrabold text-primary font-serif mb-2">
-                    Join the Elegance
+            {/* Branding & Header */}
+            <div className="mb-10 text-center md:text-left">
+                <Link href="/" className="inline-block mb-6">
+                    <div className="flex items-center space-x-2 group">
+                        <div className="w-12 h-12 bg-primary rounded-xl flex items-center justify-center shadow-lg shadow-primary/20 transition-transform group-hover:rotate-12">
+                            <UserPlus className="text-white w-6 h-6" />
+                        </div>
+                        <span className="text-2xl font-black tracking-tighter text-zinc-900">
+                            Babu<span className="text-primary italic">-Moshai</span>
+                        </span>
+                    </div>
+                </Link>
+                <h2 className="text-4xl font-black text-zinc-900 tracking-tighter mb-2">
+                    Create <span className="text-primary italic">Account</span>
                 </h2>
-                <p className="text-gray-600">
-                    Create your{' '}
-                    <span className="gradient-text font-semibold">Babu-Moshai</span>{' '}
-                    account
-                </p>
+                <p className="text-zinc-500 font-medium">Join us for a premium shopping experience.</p>
             </div>
 
-            {message && (
-                <motion.div
-                    initial={{ opacity: 0, y: -10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="bg-red-50 border-l-4 border-red-500 text-red-700 px-4 py-3 rounded"
+            {/* Notifications */}
+            {(message || error) && (
+                <motion.div 
+                    initial={{ scale: 0.95, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    className="mb-6 p-4 bg-red-50 border border-red-100 rounded-2xl text-red-600 text-sm font-bold flex items-center gap-2"
                 >
-                    {message}
-                </motion.div>
-            )}
-            {error && (
-                <motion.div
-                    initial={{ opacity: 0, y: -10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="bg-red-50 border-l-4 border-red-500 text-red-700 px-4 py-3 rounded"
-                >
-                    {error}
+                    <div className="w-1.5 h-1.5 bg-red-600 rounded-full animate-pulse" />
+                    {message || error}
                 </motion.div>
             )}
 
-            <form className="mt-8 space-y-6" onSubmit={submitHandler}>
-                <div className="space-y-4">
+            <form onSubmit={submitHandler} className="space-y-4">
+                {/* Full Name */}
+                <div className="group">
+                    <label className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-400 ml-1 mb-1.5 block">Full Name</label>
                     <div className="relative">
-                        <User className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+                        <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-zinc-400 group-focus-within:text-primary transition-colors" />
                         <input
-                            id="name"
-                            name="name"
                             type="text"
-                            autoComplete="name"
                             required
-                            className="block w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
-                            placeholder="Full Name"
                             value={name}
                             onChange={(e) => setName(e.target.value)}
+                            className="w-full bg-zinc-50 border border-zinc-200 rounded-2xl py-4 pl-12 pr-4 text-zinc-900 placeholder:text-zinc-300 focus:outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all font-medium"
+                            placeholder="John Doe"
                         />
                     </div>
+                </div>
+
+                {/* Email */}
+                <div className="group">
+                    <label className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-400 ml-1 mb-1.5 block">Email Address</label>
                     <div className="relative">
-                        <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+                        <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-zinc-400 group-focus-within:text-primary transition-colors" />
                         <input
-                            id="email-address"
-                            name="email"
                             type="email"
-                            autoComplete="email"
                             required
-                            className="block w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
-                            placeholder="Email address"
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
-                        />
-                    </div>
-                    <div className="relative">
-                        <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
-                        <input
-                            id="password"
-                            name="password"
-                            type="password"
-                            autoComplete="new-password"
-                            required
-                            className="block w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
-                            placeholder="Password"
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                        />
-                    </div>
-                    <div className="relative">
-                        <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
-                        <input
-                            id="confirm-password"
-                            name="confirm-password"
-                            type="password"
-                            autoComplete="new-password"
-                            required
-                            className="block w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
-                            placeholder="Confirm Password"
-                            value={confirmPassword}
-                            onChange={(e) => setConfirmPassword(e.target.value)}
+                            className="w-full bg-zinc-50 border border-zinc-200 rounded-2xl py-4 pl-12 pr-4 text-zinc-900 placeholder:text-zinc-300 focus:outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all font-medium"
+                            placeholder="john@example.com"
                         />
                     </div>
                 </div>
 
-                <div>
-                    <motion.button
-                        type="submit"
-                        disabled={loading}
-                        whileHover={{ scale: 1.02 }}
-                        whileTap={{ scale: 0.98 }}
-                        className="w-full btn-accent py-3 text-base disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                        {loading ? 'Creating Account...' : 'Create Account'}
-                    </motion.button>
+                {/* Password Fields Row */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="group">
+                        <label className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-400 ml-1 mb-1.5 block">Password</label>
+                        <div className="relative">
+                            <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-zinc-400 group-focus-within:text-primary transition-colors" />
+                            <input
+                                type={showPassword ? "text" : "password"}
+                                required
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
+                                className="w-full bg-zinc-50 border border-zinc-200 rounded-2xl py-4 pl-12 pr-10 text-zinc-900 placeholder:text-zinc-300 focus:outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all font-medium text-sm"
+                                placeholder="••••••••"
+                            />
+                            <button 
+                                type="button"
+                                onClick={() => setShowPassword(!showPassword)}
+                                className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-600"
+                            >
+                                {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                            </button>
+                        </div>
+                    </div>
+
+                    <div className="group">
+                        <label className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-400 ml-1 mb-1.5 block">Confirm</label>
+                        <div className="relative">
+                            <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-zinc-400 group-focus-within:text-primary transition-colors" />
+                            <input
+                                type="password"
+                                required
+                                value={confirmPassword}
+                                onChange={(e) => setConfirmPassword(e.target.value)}
+                                className="w-full bg-zinc-50 border border-zinc-200 rounded-2xl py-4 pl-12 pr-4 text-zinc-900 placeholder:text-zinc-300 focus:outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all font-medium text-sm"
+                                placeholder="••••••••"
+                            />
+                        </div>
+                    </div>
                 </div>
 
-                <div className="text-center">
-                    <p className="text-sm text-gray-600">
-                        Already have an account?{' '}
-                        <Link
-                            href={redirect ? `/login?redirect=${redirect}` : '/login'}
-                            className="font-medium text-accent hover:text-primary transition-colors"
-                        >
-                            Sign in here
-                        </Link>
-                    </p>
-                </div>
+                <motion.button
+                    whileHover={{ scale: 1.01 }}
+                    whileTap={{ scale: 0.99 }}
+                    disabled={loading}
+                    className="w-full bg-zinc-900 hover:bg-primary text-white font-black py-4 rounded-2xl shadow-xl shadow-zinc-200 transition-all flex items-center justify-center gap-3 uppercase tracking-[0.2em] text-[11px] mt-4"
+                >
+                    {loading ? (
+                        <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                    ) : (
+                        <>
+                            <span>Create Account</span>
+                            <ArrowRight className="w-4 h-4" />
+                        </>
+                    )}
+                </motion.button>
+
+                <p className="text-center text-zinc-500 text-sm font-medium pt-4">
+                    Already part of the club? {' '}
+                    <Link href={redirect ? `/login?redirect=${redirect}` : '/login'} className="text-primary font-bold hover:text-zinc-900 transition-colors border-b-2 border-primary/20 hover:border-primary pb-0.5">
+                        Sign In
+                    </Link>
+                </p>
             </form>
         </motion.div>
     );
@@ -173,14 +180,50 @@ function RegisterForm() {
 
 export default function RegisterPage() {
     return (
-        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-accent via-yellow-500 to-primary py-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
-            {/* Decorative elements */}
-            <div className="absolute top-0 left-0 w-96 h-96 bg-primary/10 rounded-full blur-3xl" />
-            <div className="absolute bottom-0 right-0 w-80 h-80 bg-white/10 rounded-full blur-3xl" />
+        <main className="min-h-screen w-full flex bg-white overflow-hidden">
+            <div className="hidden lg:block relative w-1/2 h-screen overflow-hidden">
+                <Image
+                    src="https://i.ibb.co.com/GfRhN82x/babu-moshai-logo.png"
+                    alt="Babu Moshai Fashion"
+                    fill
+                    priority
+                    className="object-cover"
+                />
+                <div className="absolute inset-0 bg-zinc-950/30 backdrop-blur-[1px]" />
+                <div className="absolute top-12 left-12">
+                    <Link href="/" className="text-white text-xl font-black tracking-[0.3em] uppercase">
+                        Babu Moshai
+                    </Link>
+                </div>
+                <div className="absolute bottom-20 left-12 text-white max-w-md">
+                    <h1 className="text-5xl font-black tracking-tighter leading-[1.1] mb-6">
+                        Join the <br /> 
+                        <span className="text-primary">Style Revolution.</span>
+                    </h1>
+                    <p className="text-zinc-200 font-medium text-lg mb-8 opacity-80">
+                        Crafting timeless elegance for the little trendsetters.
+                    </p>
+                    <div className="flex gap-2">
+                        <div className="w-12 h-1.5 bg-primary rounded-full" />
+                        <div className="w-4 h-1.5 bg-white/30 rounded-full" />
+                        <div className="w-4 h-1.5 bg-white/30 rounded-full" />
+                    </div>
+                </div>
+            </div>
 
-            <Suspense fallback={<div className="text-white">Loading...</div>}>
-                <RegisterForm />
-            </Suspense>
-        </div>
+            {/* Right : Register Form */}
+            <div className="w-full lg:w-1/2 flex items-center justify-center relative bg-white">
+               
+                <div className="absolute top-10 right-10 hidden lg:block">
+                    <p className="text-[10px] font-bold text-zinc-300 uppercase tracking-[0.5em] rotate-180 [writing-mode:vertical-lr]">
+                        Join Babu Moshai • Est. 2026
+                    </p>
+                </div>
+
+                <Suspense fallback={<div className="font-black text-primary animate-pulse tracking-widest uppercase text-xs">Loading Elegance...</div>}>
+                    <RegisterForm />
+                </Suspense>
+            </div>
+        </main>
     );
 }

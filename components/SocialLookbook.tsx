@@ -8,7 +8,7 @@ import { Instagram, ShoppingBag } from 'lucide-react';
 const galleryImages = [
     {
         id: 1,
-        url: 'https://img.freepik.com/free-vector/fashionable-new-arrival-modern-template-online-shopping_1017-59179.jpg?semt=ais_user_personalization&w=740&q=80',
+        url: 'https://i.pinimg.com/736x/18/9f/93/189f932ea48a092c8654700ba95bb0b1.jpg',
         span: 'md:col-span-2 md:row-span-2',
         title: 'New Arrivals 2026'
     },
@@ -37,7 +37,6 @@ export default function SocialLookbook() {
         <section className="py-24 bg-white overflow-hidden">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 
-                {/* Section Header */}
                 <div className="flex flex-col md:flex-row items-center justify-between mb-16 gap-6 text-center md:text-left">
                     <motion.div
                         initial={{ opacity: 0, x: -30 }}
@@ -63,7 +62,6 @@ export default function SocialLookbook() {
                     </motion.p>
                 </div>
 
-                {/* Gallery Grid */}
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 auto-rows-[200px] md:auto-rows-[250px]">
                     {galleryImages.map((image, index) => (
                         <motion.div
@@ -82,7 +80,7 @@ export default function SocialLookbook() {
                                 className="object-cover transition-all duration-700 group-hover:scale-110 group-hover:rotate-1"
                             />
                             
-                            {/* Hover Overlay */}
+                            {/* Hover  */}
                             <div className="absolute inset-0 bg-zinc-900/40 opacity-0 group-hover:opacity-100 transition-all duration-500 flex items-center justify-center backdrop-blur-[2px]">
                                 <Link 
                                     href="/shop" 
@@ -93,7 +91,7 @@ export default function SocialLookbook() {
                                 </Link>
                             </div>
                             
-                            {/* Label for Mobile */}
+                            
                             <div className="absolute bottom-4 left-6 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
                                 <p className="text-white font-bold text-sm tracking-widest uppercase">
                                     {image.title}
