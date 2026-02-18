@@ -6,6 +6,7 @@ import RecommendedOutfits from "@/components/RecommendedOutfits";
 import WhyChooseUs from "@/components/WhyChooseUs";
 import SocialLookbook from "@/components/SocialLookbook";
 import FlashSale from "@/components/FlashSale";
+import Testimonials from "@/components/Testimonials";
 
 export default function Home() {
   return (
@@ -16,6 +17,7 @@ export default function Home() {
       <FlashSale />
       <WhyChooseUs />
       <SocialLookbook />
+      <Testimonials />
     </div>
   );
 }
