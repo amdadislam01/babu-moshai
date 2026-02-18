@@ -34,7 +34,7 @@ const galleryImages = [
 
 export default function SocialLookbook() {
     return (
-        <section className="py-24 bg-white overflow-hidden">
+        <section className="py-24 bg-zinc-50/50 overflow-hidden">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 
                 <div className="flex flex-col md:flex-row items-center justify-between mb-16 gap-6 text-center md:text-left">
