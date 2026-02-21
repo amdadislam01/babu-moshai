@@ -21,10 +21,12 @@ app.get('/', (req, res) => {
 import userRoutes from './routes/userRoutes';
 import productRoutes from './routes/productRoutes';
 import orderRoutes from './routes/orderRoutes';
+import settingRoutes from './routes/settingRoutes';
 
 app.use('/api/users', userRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/orders', orderRoutes);
+app.use('/api/settings', settingRoutes);
 
 import { notFound, errorHandler } from './middleware/errorMiddleware';
 app.use(notFound);
