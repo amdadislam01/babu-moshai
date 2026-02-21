@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 import { RootState } from '@/lib/store';
 
 export default function AdminGuard({ children }: { children: React.ReactNode }) {
-    const userInfo = useSelector((state: RootState) => state.auth.userInfo);
+    const userInfo = useSelector((state: RootState) => (state as RootState).auth.userInfo);
     const router = useRouter();
 
     useEffect(() => {

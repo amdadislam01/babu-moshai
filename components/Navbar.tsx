@@ -3,18 +3,26 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { ShoppingBag, User, Menu, X, Search, Home, Grid, LogIn, Sparkles, Tag } from 'lucide-react';
-import { useSelector } from 'react-redux';
-import { RootState } from '../lib/store';
+import { useSelector, useDispatch } from 'react-redux';
+import { RootState, AppDispatch } from '../lib/store';
+import { logout } from '@/lib/features/auth/authSlice';
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 
 export default function Navbar() {
+    const dispatch = useDispatch<AppDispatch>();
+    const router = useRouter();
     const cartItems = useSelector((state: RootState) => state.cart.cartItems);
     const userInfo = useSelector((state: RootState) => state.auth.userInfo);
     const [isOpen, setIsOpen] = useState(false);
     const [scrolled, setScrolled] = useState(false);
     const pathname = usePathname();
+
+    const handleLogout = async () => {
+        await dispatch(logout());
+        setIsOpen(false);
+    };
 
     useEffect(() => {
         const handleScroll = () => {
@@ -27,22 +35,21 @@ export default function Navbar() {
     const navLinks = [
         { href: '/', label: 'Home', icon: Home },
         { href: '/shop', label: 'Shop', icon: ShoppingBag },
-        { href: '/new-arrivals', label: 'New Arrivals', icon: Sparkles }, 
-        { href: '/offers', label: 'Offers', icon: Tag },               
+        { href: '/new-arrivals', label: 'New Arrivals', icon: Sparkles },
+        { href: '/offers', label: 'Offers', icon: Tag },
         { href: '/categories', label: 'Categories', icon: Grid },
     ];
 
     return (
         <nav
-            className={`sticky top-0 z-50 transition-all duration-500 ${
-                scrolled
+            className={`sticky top-0 z-50 transition-all duration-500 ${scrolled
                 ? 'glass border-b border-orange-200/50 py-3 shadow-md'
                 : 'bg-white/80 backdrop-blur-md border-b border-orange-100/30 py-4'
-            }`}
+                }`}
         >
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="flex items-center justify-between">
-                    
+
                     {/* Logo Section */}
                     <Link href="/" className="flex items-center space-x-3 group">
                         <div className="relative w-11 h-11 overflow-hidden rounded-xl bg-orange-100 flex items-center justify-center group-hover:scale-105 transition-all duration-300 border border-orange-200/50">
@@ -68,11 +75,10 @@ export default function Navbar() {
                                     <Link
                                         key={link.href}
                                         href={link.href}
-                                        className={`relative flex items-center space-x-2 px-4 py-2 rounded-full text-sm font-medium transition-all ${
-                                            isActive 
-                                                ? 'text-primary bg-white shadow-sm' 
-                                                : 'text-orange-900/70 hover:text-primary hover:bg-white/40'
-                                        }`}
+                                        className={`relative flex items-center space-x-2 px-4 py-2 rounded-full text-sm font-medium transition-all ${isActive
+                                            ? 'text-primary bg-white shadow-sm'
+                                            : 'text-orange-900/70 hover:text-primary hover:bg-white/40'
+                                            }`}
                                     >
                                         <link.icon className={`w-4 h-4 ${isActive ? 'text-accent' : ''}`} />
                                         <span>{link.label}</span>
@@ -99,19 +105,31 @@ export default function Navbar() {
 
                         <div className="h-6 w-[1px] mx-2 hidden sm:block bg-orange-200" />
 
-                        <Link
-                            href={userInfo ? '/profile' : '/login'}
-                            className="hidden sm:flex items-center space-x-2 px-5 py-2.5 rounded-full font-bold text-sm transition-all active:scale-95 bg-primary text-white hover:bg-secondary shadow-md shadow-primary/20"
-                        >
-                            {userInfo ? (
-                                <span className="max-w-[100px] truncate">{userInfo.name}</span>
-                            ) : (
-                                <>
-                                    <LogIn className="h-4 w-4" />
-                                    <span>Sign In</span>
-                                </>
-                            )}
-                        </Link>
+                        {userInfo ? (
+                            <div className="hidden sm:flex items-center gap-3">
+                                <Link
+                                    href="/profile"
+                                    className="flex items-center space-x-2 px-5 py-2.5 rounded-full font-bold text-sm transition-all active:scale-95 bg-primary text-white hover:bg-secondary shadow-md shadow-primary/20"
+                                >
+                                    <span className="max-w-[100px] truncate">{userInfo.name}</span>
+                                </Link>
+                                <button
+                                    onClick={handleLogout}
+                                    className="p-2.5 rounded-full transition-all hover:bg-red-50 text-red-500 border border-red-100"
+                                    title="Logout"
+                                >
+                                    <LogIn className="h-5 w-5 rotate-180" />
+                                </button>
+                            </div>
+                        ) : (
+                            <Link
+                                href="/login"
+                                className="hidden sm:flex items-center space-x-2 px-5 py-2.5 rounded-full font-bold text-sm transition-all active:scale-95 bg-primary text-white hover:bg-secondary shadow-md shadow-primary/20"
+                            >
+                                <LogIn className="h-4 w-4" />
+                                <span>Sign In</span>
+                            </Link>
+                        )}
 
                         {/* Mobile Menu Button */}
                         <button
@@ -150,7 +168,7 @@ export default function Navbar() {
                                     <ArrowRight className="w-4 h-4 text-orange-300 opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all" />
                                 </Link>
                             ))}
-                            <div className="pt-4 mt-2">
+                            <div className="pt-4 mt-2 space-y-2">
                                 <Link
                                     href={userInfo ? '/profile' : '/login'}
                                     className="bg-primary text-white flex items-center justify-center space-x-2 w-full py-4 rounded-2xl font-bold shadow-lg shadow-primary/20"
@@ -159,6 +177,15 @@ export default function Navbar() {
                                     <User className="w-5 h-5" />
                                     <span>{userInfo ? 'My Account' : 'Sign In Now'}</span>
                                 </Link>
+                                {userInfo && (
+                                    <button
+                                        onClick={handleLogout}
+                                        className="bg-white text-red-500 border border-red-100 flex items-center justify-center space-x-2 w-full py-4 rounded-2xl font-bold shadow-sm"
+                                    >
+                                        <LogIn className="w-5 h-5 rotate-180" />
+                                        <span>Sign Out</span>
+                                    </button>
+                                )}
                             </div>
                         </div>
                     </motion.div>
