@@ -20,8 +20,8 @@ const menuItems = [
     { name: 'Dashboard', icon: LayoutDashboard, href: '/admin' },
     { name: 'Products', icon: ShoppingBag, href: '/admin/products' },
     { name: 'Users', icon: Users, href: '/admin/users' },
-    { name: 'Orders', icon: Search, href: '/admin/orders' }, // Placeholder for now
-    { name: 'Settings', icon: Settings, href: '/admin/settings' }, // Placeholder for now
+    { name: 'Orders', icon: ShoppingBag, href: '/admin/orders' },
+    { name: 'Settings', icon: Settings, href: '/admin/settings' },
 ];
 
 export default function AdminSidebar() {
@@ -50,8 +50,8 @@ export default function AdminSidebar() {
                             key={item.href}
                             href={item.href}
                             className={`flex items-center justify-between px-4 py-3.5 rounded-2xl group transition-all duration-300 ${isActive
-                                    ? 'bg-primary text-white shadow-xl shadow-primary/20'
-                                    : 'text-zinc-500 hover:bg-zinc-50 hover:text-zinc-900'
+                                ? 'bg-primary text-white shadow-xl shadow-primary/20'
+                                : 'text-zinc-500 hover:bg-zinc-50 hover:text-zinc-900'
                                 }`}
                         >
                             <div className="flex items-center space-x-3">
