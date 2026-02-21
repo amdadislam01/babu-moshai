@@ -1,45 +1,78 @@
 'use client';
 
-import { useState, useEffect, Suspense } from 'react';
+import { useEffect, Suspense, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
-import { register } from '@/lib/features/auth/authSlice';
+import { useForm } from 'react-hook-form'; // Added
+import { signIn } from 'next-auth/react';
+import { register as registerUser } from '@/lib/features/auth/authSlice';
 import { RootState, AppDispatch } from '@/lib/store';
 import { motion } from 'framer-motion';
 import { User, Mail, Lock, UserPlus, ArrowRight, Eye, EyeOff } from 'lucide-react';
 
+// interface
+interface RegisterFormData {
+    name: string;
+    email: string;
+    password: string;
+    confirmPassword?: string;
+}
+
 function RegisterForm() {
-    const [name, setName] = useState('');
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
-    const [confirmPassword, setConfirmPassword] = useState('');
     const [showPassword, setShowPassword] = useState(false);
-    const [message, setMessage] = useState<string | null>(null);
+    const [regError, setRegError] = useState<string | null>(null);
+    const [isRegistering, setIsRegistering] = useState(false);
 
     const dispatch = useDispatch<AppDispatch>();
     const router = useRouter();
     const searchParams = useSearchParams();
     const redirect = searchParams.get('redirect') || '/';
 
-    const { userInfo, loading, error } = useSelector((state: RootState) => state.auth);
+    const { userInfo, loading: reduxLoading, error: reduxError } = useSelector((state: RootState) => state.auth);
 
-    useEffect(() => {
-        if (userInfo) {
-            router.push(redirect);
-        }
-    }, [userInfo, redirect, router]);
+    // useForm hook 
+    const {
+        register,
+        handleSubmit,
+        watch,
+        formState: { errors }
+    } = useForm<RegisterFormData>();
 
-    const submitHandler = (e: React.FormEvent) => {
-        e.preventDefault();
-        if (password !== confirmPassword) {
-            setMessage('Passwords do not match');
-        } else {
-            setMessage(null);
-            dispatch(register({ name, email, password }));
+
+    const onSubmit = async (data: RegisterFormData) => {
+        const { name, email, password } = data;
+        setIsRegistering(true);
+        setRegError(null);
+        try {
+            // First register via Redux action (which calls backend)
+            const resultAction = await dispatch(registerUser({ name, email, password }));
+
+            if (registerUser.fulfilled.match(resultAction)) {
+                // If registration successful, sign in with NextAuth
+                const signInResult = await signIn('credentials', {
+                    redirect: false,
+                    email,
+                    password,
+                });
+
+                if (signInResult?.error) {
+                    setRegError("Registration successful, but sign-in failed. Please login manually.");
+                } else {
+                    router.push(redirect);
+                }
+            } else if (registerUser.rejected.match(resultAction)) {
+                setRegError(resultAction.payload as string || "Registration failed");
+            }
+        } catch (err: any) {
+            setRegError("An unexpected error occurred");
+        } finally {
+            setIsRegistering(false);
         }
     };
+
+    const password = watch('password');
 
     return (
         <motion.div
@@ -48,7 +81,6 @@ function RegisterForm() {
             transition={{ duration: 0.8 }}
             className="w-full max-w-lg p-8 md:p-12"
         >
-            {/* Branding & Header */}
             <div className="mb-10 text-center md:text-left">
                 <Link href="/" className="inline-block mb-6">
                     <div className="flex items-center space-x-2 group">
@@ -66,33 +98,34 @@ function RegisterForm() {
                 <p className="text-zinc-500 font-medium">Join us for a premium shopping experience.</p>
             </div>
 
-            {/* Notifications */}
-            {(message || error) && (
-                <motion.div 
+            {/* Error Notifications */}
+            {(regError || reduxError || Object.keys(errors).length > 0) && (
+                <motion.div
                     initial={{ scale: 0.95, opacity: 0 }}
                     animate={{ scale: 1, opacity: 1 }}
-                    className="mb-6 p-4 bg-red-50 border border-red-100 rounded-2xl text-red-600 text-sm font-bold flex items-center gap-2"
+                    className="mb-6 p-4 bg-red-50 border border-red-100 rounded-2xl text-red-600 text-sm font-bold flex flex-col gap-1"
                 >
-                    <div className="w-1.5 h-1.5 bg-red-600 rounded-full animate-pulse" />
-                    {message || error}
+                    <div className="flex items-center gap-2">
+                        <div className="w-1.5 h-1.5 bg-red-600 rounded-full animate-pulse" />
+                        <span>{regError || reduxError || "Please fix the errors below"}</span>
+                    </div>
                 </motion.div>
             )}
 
-            <form onSubmit={submitHandler} className="space-y-4">
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
                 {/* Full Name */}
                 <div className="group">
                     <label className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-400 ml-1 mb-1.5 block">Full Name</label>
                     <div className="relative">
                         <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-zinc-400 group-focus-within:text-primary transition-colors" />
                         <input
+                            {...register('name', { required: 'Name is required' })}
                             type="text"
-                            required
-                            value={name}
-                            onChange={(e) => setName(e.target.value)}
                             className="w-full bg-zinc-50 border border-zinc-200 rounded-2xl py-4 pl-12 pr-4 text-zinc-900 placeholder:text-zinc-300 focus:outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all font-medium"
                             placeholder="John Doe"
                         />
                     </div>
+                    {errors.name && <p className="text-[10px] text-red-500 mt-1 ml-2 font-bold uppercase">{errors.name.message as string}</p>}
                 </div>
 
                 {/* Email */}
@@ -101,14 +134,16 @@ function RegisterForm() {
                     <div className="relative">
                         <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-zinc-400 group-focus-within:text-primary transition-colors" />
                         <input
+                            {...register('email', {
+                                required: 'Email is required',
+                                pattern: { value: /^\S+@\S+$/i, message: 'Invalid email address' }
+                            })}
                             type="email"
-                            required
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
                             className="w-full bg-zinc-50 border border-zinc-200 rounded-2xl py-4 pl-12 pr-4 text-zinc-900 placeholder:text-zinc-300 focus:outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all font-medium"
                             placeholder="john@example.com"
                         />
                     </div>
+                    {errors.email && <p className="text-[10px] text-red-500 mt-1 ml-2 font-bold uppercase">{errors.email.message as string}</p>}
                 </div>
 
                 {/* Password Fields Row */}
@@ -118,14 +153,15 @@ function RegisterForm() {
                         <div className="relative">
                             <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-zinc-400 group-focus-within:text-primary transition-colors" />
                             <input
+                                {...register('password', {
+                                    required: 'Required',
+                                    minLength: { value: 6, message: 'Min 6 chars' }
+                                })}
                                 type={showPassword ? "text" : "password"}
-                                required
-                                value={password}
-                                onChange={(e) => setPassword(e.target.value)}
                                 className="w-full bg-zinc-50 border border-zinc-200 rounded-2xl py-4 pl-12 pr-10 text-zinc-900 placeholder:text-zinc-300 focus:outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all font-medium text-sm"
                                 placeholder="••••••••"
                             />
-                            <button 
+                            <button
                                 type="button"
                                 onClick={() => setShowPassword(!showPassword)}
                                 className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-600"
@@ -133,6 +169,7 @@ function RegisterForm() {
                                 {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                             </button>
                         </div>
+                        {errors.password && <p className="text-[10px] text-red-500 mt-1 ml-2 font-bold uppercase">{errors.password.message as string}</p>}
                     </div>
 
                     <div className="group">
@@ -140,24 +177,27 @@ function RegisterForm() {
                         <div className="relative">
                             <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-zinc-400 group-focus-within:text-primary transition-colors" />
                             <input
+                                {...register('confirmPassword', {
+                                    required: 'Required',
+                                    validate: (value) => value === password || 'No match'
+                                })}
                                 type="password"
-                                required
-                                value={confirmPassword}
-                                onChange={(e) => setConfirmPassword(e.target.value)}
                                 className="w-full bg-zinc-50 border border-zinc-200 rounded-2xl py-4 pl-12 pr-4 text-zinc-900 placeholder:text-zinc-300 focus:outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all font-medium text-sm"
                                 placeholder="••••••••"
                             />
                         </div>
+                        {errors.confirmPassword && <p className="text-[10px] text-red-500 mt-1 ml-2 font-bold uppercase">{errors.confirmPassword.message as string}</p>}
                     </div>
                 </div>
 
                 <motion.button
                     whileHover={{ scale: 1.01 }}
                     whileTap={{ scale: 0.99 }}
-                    disabled={loading}
+                    disabled={isRegistering || reduxLoading}
+                    type="submit"
                     className="w-full bg-zinc-900 hover:bg-primary text-white font-black py-4 rounded-2xl shadow-xl shadow-zinc-200 transition-all flex items-center justify-center gap-3 uppercase tracking-[0.2em] text-[11px] mt-4"
                 >
-                    {loading ? (
+                    {isRegistering || reduxLoading ? (
                         <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                     ) : (
                         <>
@@ -197,7 +237,7 @@ export default function RegisterPage() {
                 </div>
                 <div className="absolute bottom-20 left-12 text-white max-w-md">
                     <h1 className="text-5xl font-black tracking-tighter leading-[1.1] mb-6">
-                        Join the <br /> 
+                        Join the <br />
                         <span className="text-primary">Style Revolution.</span>
                     </h1>
                     <p className="text-zinc-200 font-medium text-lg mb-8 opacity-80">
@@ -211,9 +251,7 @@ export default function RegisterPage() {
                 </div>
             </div>
 
-            {/* Right : Register Form */}
             <div className="w-full lg:w-1/2 flex items-center justify-center relative bg-white">
-               
                 <div className="absolute top-10 right-10 hidden lg:block">
                     <p className="text-[10px] font-bold text-zinc-300 uppercase tracking-[0.5em] rotate-180 [writing-mode:vertical-lr]">
                         Join Babu Moshai • Est. 2026

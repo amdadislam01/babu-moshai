@@ -11,13 +11,15 @@ import Link from 'next/link';
 export default function ProfilePage() {
     const router = useRouter();
     const dispatch = useDispatch<AppDispatch>();
-    const userInfo = useSelector((state: RootState) => state.auth.userInfo);
+    const userInfo = useSelector((state: RootState) => (state as RootState).auth.userInfo);
     const [orders, setOrders] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         if (!userInfo) {
             router.push('/login');
+        } else if (userInfo.role === 'admin') {
+            router.push('/admin');
         } else {
             const fetchOrders = async () => {
                 try {
