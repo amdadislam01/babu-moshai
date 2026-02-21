@@ -1,5 +1,6 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import api from '../../api';
+import { signOut } from 'next-auth/react';
 
 interface UserInfo {
     _id: string;
@@ -61,12 +62,22 @@ export const register = createAsyncThunk(
 
 export const logout = createAsyncThunk('auth/logout', async () => {
     localStorage.removeItem('userInfo');
+    await signOut({ redirect: true, callbackUrl: '/login' });
 });
 
 const authSlice = createSlice({
     name: 'auth',
     initialState,
-    reducers: {},
+    reducers: {
+        setUserInfo: (state, action: PayloadAction<UserInfo | null>) => {
+            state.userInfo = action.payload;
+            if (action.payload) {
+                localStorage.setItem('userInfo', JSON.stringify(action.payload));
+            } else {
+                localStorage.removeItem('userInfo');
+            }
+        },
+    },
     extraReducers: (builder) => {
         builder
             .addCase(login.pending, (state) => {
@@ -99,4 +110,5 @@ const authSlice = createSlice({
     },
 });
 
+export const { setUserInfo } = authSlice.actions;
 export default authSlice.reducer;
