@@ -26,8 +26,9 @@ app.use('/api/users', userRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/orders', orderRoutes);
 
-
-
+import { notFound, errorHandler } from './middleware/errorMiddleware';
+app.use(notFound);
+app.use(errorHandler);
 
 // Connect to MongoDB
 mongoose.connect(MONGO_URI!)
